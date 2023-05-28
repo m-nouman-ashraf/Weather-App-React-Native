@@ -100,7 +100,7 @@ export default function HomeScreen() {
             />
           </View>
           {/* Degree Celcius */}
-          <View>
+          <View className='space-y-2 mb-3'>
             <Text className='text-white text-6xl ml-5 text-center font-bold'>
               23&deg;C
             </Text>
