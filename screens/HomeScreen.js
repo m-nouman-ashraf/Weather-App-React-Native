@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -15,14 +15,35 @@ import {
   MagnifyingGlassIcon,
 } from "react-native-heroicons/outline";
 import { MapPinIcon } from "react-native-heroicons/solid";
+import { debounce } from "lodash";
+import { fetchLocation, fetchweatherForcast } from "../api/weather";
 
 export default function HomeScreen() {
   const [showSearch, setShowSearch] = useState(false);
-  const [location, setLocation] = useState([1, 2, 3]);
+  const [location, setLocation] = useState([]);
 
   const handleLocation = (loc) => {
     console.log(loc);
+    setLocation([]);
+    fetchweatherForcast({
+      cityName: loc.name,
+      day: "7",
+    }).then((data) => {
+      console.log("GOT Data", data);
+    });
   };
+
+  const handlesearch = (value) => {
+    //fetch location
+    if (value.length > 3) {
+      fetchLocation({ cityName: value }).then((data) => {
+        setLocation(data);
+      });
+    }
+  };
+
+  const handleTextDebounce = useCallback(debounce(handlesearch, 1200), []);
+
   return (
     <View className='flex-1 relative'>
       <StatusBar style='light' />
@@ -43,6 +64,7 @@ export default function HomeScreen() {
           >
             {showSearch ? (
               <TextInput
+                onChangeText={handleTextDebounce}
                 placeholder='Search City'
                 placeholderTextColor={"lightgrey"}
                 className='pl-6 h-10 flex-1 text-base text-white'
@@ -75,7 +97,7 @@ export default function HomeScreen() {
                   >
                     <MapPinIcon size={20} color='gray' />
                     <Text className='text-black text-lg ml-2'>
-                      London, UnitedKindom
+                      {loc?.name}, {loc?.country}
                     </Text>
                   </TouchableOpacity>
                 );
